@@ -9,17 +9,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.manojsoni.interview.network.Movie
-
+import kotlinx.android.synthetic.main.blank_fragment.*
 
 class BlankFragment : Fragment() {
 
     companion object {
         fun newInstance() = BlankFragment()
-        private val TAG : String = BlankFragment::class.java.simpleName
+        private val TAG: String = BlankFragment::class.java.simpleName
     }
 
     private lateinit var viewModel: BlankViewModel
+    private lateinit var movieListAdapter : ItemAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,16 +39,22 @@ class BlankFragment : Fragment() {
         viewModel.movieListLiveData.observe(this, Observer(function = fun(it: List<Movie>?) {
 
             it?.let {
-
-                Log.d(TAG, "Response in the fragment")
-                for (movie in it) {
-
-                    Log.d(TAG, "Movie Name = ${movie.title}")
-                }
+                movieListAdapter.update(it)
             }
         }))
 
         viewModel.loadMovies()
+    }
+
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        movieListAdapter = ItemAdapter()
+
+        recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+        recyclerView.adapter = movieListAdapter
     }
 
 }
