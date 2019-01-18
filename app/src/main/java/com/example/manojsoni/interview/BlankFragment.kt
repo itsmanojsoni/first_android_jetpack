@@ -1,5 +1,6 @@
 package com.example.manojsoni.interview
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 
@@ -14,7 +15,30 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.manojsoni.interview.network.Movie
 import kotlinx.android.synthetic.main.blank_fragment.*
 
-class BlankFragment : Fragment() {
+class BlankFragment : Fragment(), ItemAdapter.OnItemClicked {
+
+    private lateinit var callback: OnActivityCallback
+
+    interface OnActivityCallback {
+        fun onItemClicked(movie: Movie)
+    }
+
+    override fun onItemClicked(movie: Movie) {
+        Log.d(TAG, "on Item Clicked")
+        callback.onItemClicked(movie)
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+
+        try {
+            callback = context as OnActivityCallback
+        } catch (e: ClassCastException) {
+
+            throw ClassCastException(activity!!.toString() + " must implement OnMovieUpdateCallback")
+        }
+
+    }
 
     companion object {
         fun newInstance() = BlankFragment()
@@ -51,7 +75,7 @@ class BlankFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        movieListAdapter = ItemAdapter()
+        movieListAdapter = ItemAdapter(this)
 
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = movieListAdapter

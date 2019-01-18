@@ -7,30 +7,41 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.bumptech.glide.Glide
 import com.example.manojsoni.interview.network.Movie
 
 
-class ItemAdapter : RecyclerView.Adapter<ItemAdapter.MovieViewHolder>() {
-
+class ItemAdapter (val listener : OnItemClicked): RecyclerView.Adapter<ItemAdapter.MovieViewHolder>() {
 
     private val items = ArrayList<Movie>()
 
     private val TAG = ItemAdapter::class.java.simpleName
 
+    interface OnItemClicked {
+        fun onItemClicked(movie: Movie)
+    }
 
-    class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+    class MovieViewHolder(itemView: View, listener: OnItemClicked) : RecyclerView.ViewHolder(itemView) {
 
         private val itemNameTv: TextView = itemView.findViewById(R.id.movieTitleTv)
         private val movieIv : ImageView = itemView.findViewById(R.id.movieIv)
-        fun bind(movie: Movie) {
 
-            Log.d("MovieViewHolder", "bind")
-            itemNameTv.text = movie.title
+        private lateinit var movie : Movie
+
+        init {
+            itemView.setOnClickListener {
+
+                listener.onItemClicked(movie)
+            }
+        }
+
+        fun bind(item: Movie) {
+            itemNameTv.text = item.title
+            movie = item
 
             Glide.with(itemView.context)
-                .load(movie.image)
+                .load(item.image)
                 .into(movieIv)
         }
     }
@@ -41,7 +52,7 @@ class ItemAdapter : RecyclerView.Adapter<ItemAdapter.MovieViewHolder>() {
             .from(parent.context)
             .inflate(R.layout.item_row, parent, false)
 
-        return MovieViewHolder(view)
+        return MovieViewHolder(view, listener)
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
